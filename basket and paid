@@ -1,0 +1,171 @@
+this part shows the customers what they got in store then how much they paid and states how much the store made
+import threading
+import random
+
+class TemmiePies:
+    def __init__(self):
+        self.inventory = {
+            'Apple Pie': {'Small': 10, 'Medium': 15, 'Large': 20},
+            'Blueberry Pie': {'Small': 8, 'Medium': 12, 'Large': 18},
+            'Pumpkin Pie': {'Small': 12, 'Medium': 20, 'Large': 25},
+            'Cinnamon Butterscotch Pie': {'Small': 5, 'Medium': 8, 'Large': 10},
+            'Cherry Pie': {'Small': 6, 'Medium': 10, 'Large': 15},
+            'Key Lime Pie': {'Small': 7, 'Medium': 12, 'Large': 18}
+        }
+        self.total_revenue = 0
+
+    def message(self):
+        print("Temmie's Pies shop")
+        print("Inventory:")
+        for flavor, sizes in self.inventory.items():
+            print(f"- {flavor}: {', '.join(sizes.keys())}")
+        print()
+
+    def shop(self, customer_name, pie_to_buy, size, result, payment):
+        print(f"{customer_name} is busy shopping at Temmie's Pies shop...")
+        print(f"{customer_name} adds {size} {pie_to_buy} to their basket.")
+        if pie_to_buy in self.inventory and size in self.inventory[pie_to_buy] and self.inventory[pie_to_buy][size] > 0:
+            result.append(f"{size} {pie_to_buy} added to {customer_name}'s bag.")
+            self.inventory[pie_to_buy][size] -= 1
+            payment[0] += self.get_pie_price(pie_to_buy, size)
+
+    def display_bag_contents(self, customer_name, bag, payment):
+        print(f"{customer_name} is checking out...")
+        print("\nItems in the bag:")
+        for pie, sizes in bag.items():
+            for size, quantity in sizes.items():
+                print(f"- {quantity} {size} {pie}")
+        total_price = sum(self.get_pie_price(pie, size) for pie, sizes in bag.items() for size, quantity in sizes.items())
+        print(f"Total price: ${total_price}")
+        print(f"{customer_name} pays ${total_price} for the {', '.join([f'{quantity} {size} {pie}' for pie, sizes in bag.items() for size, quantity in sizes.items()])}.")
+        print()
+
+    def get_pie_price(self, pie, size):
+        prices = {
+            'Apple Pie': {'Small': 5, 'Medium': 8, 'Large': 10},
+            'Blueberry Pie': {'Small': 6, 'Medium': 9, 'Large': 12},
+            'Pumpkin Pie': {'Small': 7, 'Medium': 10, 'Large': 15},
+            'Cinnamon Butterscotch Pie': {'Small': 6, 'Medium': 9, 'Large': 12},
+            'Cherry Pie': {'Small': 7, 'Medium': 11, 'Large': 14},
+            'Key Lime Pie': {'Small': 8, 'Medium': 12, 'Large': 16}
+        }
+        return prices[pie][size]
+
+    def random_pie_choice(self):
+        pie = random.choice(list(self.inventory.keys()))
+        size = random.choice(list(self.inventory[pie].keys()))
+        return pie, size
+
+class Stand:
+    def __init__(self): 
+        self.inventory = TemmiePies()
+        self.customers = []
+        self.purchase = Purchase()
+
+    def add_customer(self, customer): 
+        self.customers.append(customer)
+
+    def getCustomers(self):
+        for customer in self.customers:
+            print("customer " + customer.getName() + " is busy shopping.")
+    
+    def run(self): 
+        print("Welcome to Temmie's Pies shop!")
+        print(self.inventory.message())
+        print("We have " + str(len(self.customers)) + " customers today.")
+        
+        for customer in self.customers: 
+            print("Customer " + customer.name + " is shopping.")
+            item = self.inventory.random_pie_choice()
+            customer.add_to_order(item)
+            print("Customer " + customer.name + " added " + str(item) + " to their order.")
+            self.purchase.increment(self.inventory.get_pie_price(item[0], item[1]))
+            print("Customer " + customer.name + " checked out and paid $" + str(self.inventory.get_pie_price(item[0], item[1])) + ".")
+        print("The total sales for Temmie's Pies shop today is $" + str(self.purchase.total) + ".")
+
+class Customer:
+    def __init__(self, name): 
+        self.name = name
+        self.order = []
+
+    def add_to_order(self, product): 
+        self.order.append(product)
+
+    def getName(self):
+            return self.name
+
+class Purchase:
+    def __init__(self): 
+        self.total = 0
+
+    def increment(self, price): 
+        self.total += price
+
+    def __str__(self): 
+        return "Sale: $" + str(self.total)
+
+stand = Stand()
+
+customer_names = ["Frisk", "Sans", "Toriel", "Undyne", "Alphys", "Asriel", "Chara", "Papyrus", "Asgore"]
+for name in customer_names:
+    stand.add_customer(Customer(name)) 
+
+stand.getCustomers()
+stand.run()
+
+Results
+
+0s
+
+stand.getCustomers()
+stand.run()
+
+customer Frisk is busy shopping.
+customer Sans is busy shopping.
+customer Toriel is busy shopping.
+customer Undyne is busy shopping.
+customer Alphys is busy shopping.
+customer Asriel is busy shopping.
+customer Chara is busy shopping.
+customer Papyrus is busy shopping.
+customer Asgore is busy shopping.
+Welcome to Temmie's Pies shop!
+Temmie's Pies shop
+Inventory:
+- Apple Pie: Small, Medium, Large
+- Blueberry Pie: Small, Medium, Large
+- Pumpkin Pie: Small, Medium, Large
+- Cinnamon Butterscotch Pie: Small, Medium, Large
+- Cherry Pie: Small, Medium, Large
+- Key Lime Pie: Small, Medium, Large
+
+None
+We have 9 customers today.
+Customer Frisk is shopping.
+Customer Frisk added ('Cinnamon Butterscotch Pie', 'Large') to their order.
+Customer Frisk checked out and paid $12.
+Customer Sans is shopping.
+Customer Sans added ('Key Lime Pie', 'Medium') to their order.
+Customer Sans checked out and paid $12.
+Customer Toriel is shopping.
+Customer Toriel added ('Blueberry Pie', 'Medium') to their order.
+Customer Toriel checked out and paid $9.
+Customer Undyne is shopping.
+Customer Undyne added ('Blueberry Pie', 'Small') to their order.
+Customer Undyne checked out and paid $6.
+Customer Alphys is shopping.
+Customer Alphys added ('Pumpkin Pie', 'Medium') to their order.
+Customer Alphys checked out and paid $10.
+Customer Asriel is shopping.
+Customer Asriel added ('Apple Pie', 'Small') to their order.
+Customer Asriel checked out and paid $5.
+Customer Chara is shopping.
+Customer Chara added ('Cinnamon Butterscotch Pie', 'Large') to their order.
+Customer Chara checked out and paid $12.
+Customer Papyrus is shopping.
+Customer Papyrus added ('Cinnamon Butterscotch Pie', 'Small') to their order.
+Customer Papyrus checked out and paid $6.
+Customer Asgore is shopping.
+Customer Asgore added ('Cinnamon Butterscotch Pie', 'Medium') to their order.
+Customer Asgore checked out and paid $9.
+The total sales for Temmie's Pies shop today is $81.
