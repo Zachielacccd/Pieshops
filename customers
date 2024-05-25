@@ -1,0 +1,28 @@
+this was just code stating customers are busy shopping all this code does is print out the names then is busy shopping after it
+class Customer:
+    def __init__(self, name):
+        self.name = name
+        self.busy_shopping = True
+
+    def __str__(self):
+        return f"{self.name} is busy shopping."
+
+
+customer_names = ["Alice", "Bob", "Charlie", "David", "Eve", "Frank", "Grace", "Hannah", "Ian", "Jasmine"]
+
+
+customers = [Customer(name) for name in customer_names]
+
+
+for customer in customers:
+    print(customer)
+Alice is busy shopping.
+Bob is busy shopping.
+Charlie is busy shopping.
+David is busy shopping.
+Eve is busy shopping.
+Frank is busy shopping.
+Grace is busy shopping.
+Hannah is busy shopping.
+Ian is busy shopping.
+Jasmine is busy shopping.
