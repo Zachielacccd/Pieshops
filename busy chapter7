@@ -1,0 +1,285 @@
+this one add a new message saying they are busy shopping at the pie shop
+import random
+
+class Purchase:
+    def __init__(self):
+        self.total = 0
+
+    def increment(self, price):
+        self.total += price
+
+    def __str__(self):
+        return "Sale: $" + str(self.total)
+
+class TemmiePies:
+    def __init__(self):
+        self.inventory = {
+            'Apple Pie': {'Small': 10, 'Medium': 15, 'Large': 20},
+            'Blueberry Pie': {'Small': 8, 'Medium': 12, 'Large': 18},
+            'Pumpkin Pie': {'Small': 12, 'Medium': 20, 'Large': 25},
+            'Cinnamon Butterscotch Pie': {'Small': 5, 'Medium': 8, 'Large': 10},
+            'Cherry Pie': {'Small': 6, 'Medium': 10, 'Large': 15},
+            'Key Lime Pie': {'Small': 7, 'Medium': 12, 'Large': 18}
+        }
+        self.total_revenue = 0
+
+    def message(self):
+        print("Temmie's Pies shop")
+        print("Inventory:")
+        for flavor, sizes in self.inventory.items():
+            print(f"- {flavor}: {', '.join(sizes.keys())}")
+        print()
+
+    def shop(self, customer_name, pie_to_buy, size, result, payment):
+        print(f"{customer_name} is busy shopping at Temmie's Pies shop...")
+        if pie_to_buy in self.inventory and size in self.inventory[pie_to_buy] and self.inventory[pie_to_buy][size] > 0:
+            print(f"{customer_name} adds {size} {pie_to_buy} to their basket.")
+            result.append(f"{size} {pie_to_buy} added to {customer_name}'s bag.")
+            self.inventory[pie_to_buy][size] -= 1
+            payment.increment(self.get_pie_price(pie_to_buy, size))
+        else:
+            print(f"Sorry, {size} {pie_to_buy} is not available at the moment.")
+
+    def display_bag_contents(self, customer_name, bag, payment):
+        print(f"{customer_name} is checking out...")
+        print("\nItems in the bag:")
+        for pie, sizes in bag.items():
+            for size, quantity in sizes.items():
+                print(f"- {quantity} {size} {pie}")
+        total_price = sum(self.get_pie_price(pie, size) for pie, sizes in bag.items() for size, quantity in sizes.items())
+        print(f"Total price: ${total_price}")
+        print(f"{customer_name} pays ${total_price} for the {', '.join([f'{quantity} {size} {pie}' for pie, sizes in bag.items() for size, quantity in sizes.items()])}.")
+        print()
+
+    def get_pie_price(self, pie, size):
+        prices = {
+            'Apple Pie': {'Small': 4.99, 'Medium': 7.99, 'Large': 10.99},
+            'Blueberry Pie': {'Small': 4.99, 'Medium': 7.99, 'Large': 10.99},
+            'Pumpkin Pie': {'Small': 4.98, 'Medium': 7.98, 'Large': 10.98},
+            'Cinnamon Butterscotch Pie': {'Small': 6.99, 'Medium': 9.99, 'Large': 12.99},
+            'Cherry Pie': {'Small': 3.99, 'Medium': 6.99, 'Large': 9.99},
+            'Key Lime Pie': {'Small': 6.99, 'Medium': 9.99, 'Large': 12.98}
+        }
+        return prices[pie][size]
+
+    def random_pie_choice(self):
+        pie = random.choice(list(self.inventory.keys()))
+        size = random.choice(list(self.inventory[pie].keys()))
+        return pie, size
+
+class Stand:
+    def __init__(self, name):
+        self.name = name
+        self.inventory = TemmiePies()
+        self.customers = []
+        self.purchase = Purchase()
+
+    def add_customer(self, customer):
+        self.customers.append(customer)
+
+    def get_customers(self):
+        for customer in self.customers:
+            print("Customer " + customer.get_name() + " is busy shopping.")
+
+    def run(self):
+        print("Welcome to " + self.name + "!")
+        self.inventory.message()
+        print("We have " + str(len(self.customers)) + " customers today.")
+
+        for customer in self.customers:
+            print("Customer " + customer.name + " is shopping.")
+            item = self.inventory.random_pie_choice()
+            customer.add_to_order(item)
+            self.inventory.shop(customer.name, item[0], item[1], customer.cart, self.purchase)
+        print("The total sales for " + self.name + " today is $" + str(self.purchase.total) + ".")
+
+class Customer:
+    def __init__(self, name):
+        self.name = name
+        self.cart = []
+        self.order = []
+
+    def add_to_order(self, product):
+        self.order.append(product)
+
+    def get_name(self):
+        return self.name
+
+class Organization:
+    def __init__(self, name):
+        self.name = name
+        self.stands = []
+
+    def add_stand(self, stand):
+        self.stands.append(stand)
+
+    def simulate(self):
+        print("Welcome to " + self.name + "!")
+        print("We have " + str(len(self.stands)) + " stores in our corporation.")
+
+        total_sales = 0
+        for store in self.stands:
+            store.run()
+            total_sales += store.purchase.total
+        print("The total sales for " + self.name + " today is $" + str(total_sales) + ".")
+
+    def __str__(self):
+        result = self.name + ":\n"
+        for stand in self.stands:
+            result += str(stand) + "\n"
+        return result
+
+
+
+store1 = Stand("Temmie Pie Store 1")
+store2 = Stand("Temmie Pie Store 2")
+store3 = Stand("Temmie Pie Store 3")
+
+
+customer_names = ["Frisk", "Sans", "Toriel", "Undyne", "Alphys", "Asriel", "Chara", "Papyrus", "Asgore", "Monster kid"]
+for name in customer_names:
+    customer = Customer(name)
+    store1.add_customer(customer)
+    store2.add_customer(customer)
+    store3.add_customer(customer)
+
+
+corp = Organization("Temmie Pie Organization")
+corp.add_stand(store1)
+corp.add_stand(store2)
+corp.add_stand(store3)
+
+
+corp.simulate()
+
+
+Results came out as i thought it would with a few 
+Welcome to Temmie Pie Organization!
+We have 3 stores in our corporation.
+Welcome to Temmie Pie Store 1!
+Temmie's Pies shop
+Inventory:
+- Apple Pie: Small, Medium, Large
+- Blueberry Pie: Small, Medium, Large
+- Pumpkin Pie: Small, Medium, Large
+- Cinnamon Butterscotch Pie: Small, Medium, Large
+- Cherry Pie: Small, Medium, Large
+- Key Lime Pie: Small, Medium, Large
+
+We have 10 customers today.
+Customer Frisk is shopping.
+Frisk is busy shopping at Temmie's Pies shop...
+Frisk adds Small Pumpkin Pie to their basket.
+Customer Sans is shopping.
+Sans is busy shopping at Temmie's Pies shop...
+Sans adds Medium Key Lime Pie to their basket.
+Customer Toriel is shopping.
+Toriel is busy shopping at Temmie's Pies shop...
+Toriel adds Small Pumpkin Pie to their basket.
+Customer Undyne is shopping.
+Undyne is busy shopping at Temmie's Pies shop...
+Undyne adds Large Key Lime Pie to their basket.
+Customer Alphys is shopping.
+Alphys is busy shopping at Temmie's Pies shop...
+Alphys adds Medium Blueberry Pie to their basket.
+Customer Asriel is shopping.
+Asriel is busy shopping at Temmie's Pies shop...
+Asriel adds Small Blueberry Pie to their basket.
+Customer Chara is shopping.
+Chara is busy shopping at Temmie's Pies shop...
+Chara adds Medium Blueberry Pie to their basket.
+Customer Papyrus is shopping.
+Papyrus is busy shopping at Temmie's Pies shop...
+Papyrus adds Small Blueberry Pie to their basket.
+Customer Asgore is shopping.
+Asgore is busy shopping at Temmie's Pies shop...
+Asgore adds Medium Cherry Pie to their basket.
+Customer Monster kid is shopping.
+Monster kid is busy shopping at Temmie's Pies shop...
+Monster kid adds Medium Cinnamon Butterscotch Pie to their basket.
+The total sales for Temmie Pie Store 1 today is $75.87.
+Welcome to Temmie Pie Store 2!
+Temmie's Pies shop
+Inventory:
+- Apple Pie: Small, Medium, Large
+- Blueberry Pie: Small, Medium, Large
+- Pumpkin Pie: Small, Medium, Large
+- Cinnamon Butterscotch Pie: Small, Medium, Large
+- Cherry Pie: Small, Medium, Large
+- Key Lime Pie: Small, Medium, Large
+
+We have 10 customers today.
+Customer Frisk is shopping.
+Frisk is busy shopping at Temmie's Pies shop...
+Frisk adds Medium Cherry Pie to their basket.
+Customer Sans is shopping.
+Sans is busy shopping at Temmie's Pies shop...
+Sans adds Small Cinnamon Butterscotch Pie to their basket.
+Customer Toriel is shopping.
+Toriel is busy shopping at Temmie's Pies shop...
+Toriel adds Medium Apple Pie to their basket.
+Customer Undyne is shopping.
+Undyne is busy shopping at Temmie's Pies shop...
+Undyne adds Large Pumpkin Pie to their basket.
+Customer Alphys is shopping.
+Alphys is busy shopping at Temmie's Pies shop...
+Alphys adds Small Blueberry Pie to their basket.
+Customer Asriel is shopping.
+Asriel is busy shopping at Temmie's Pies shop...
+Asriel adds Small Blueberry Pie to their basket.
+Customer Chara is shopping.
+Chara is busy shopping at Temmie's Pies shop...
+Chara adds Large Cinnamon Butterscotch Pie to their basket.
+Customer Papyrus is shopping.
+Papyrus is busy shopping at Temmie's Pies shop...
+Papyrus adds Medium Pumpkin Pie to their basket.
+Customer Asgore is shopping.
+Asgore is busy shopping at Temmie's Pies shop...
+Asgore adds Medium Pumpkin Pie to their basket.
+Customer Monster kid is shopping.
+Monster kid is busy shopping at Temmie's Pies shop...
+Monster kid adds Large Cherry Pie to their basket.
+The total sales for Temmie Pie Store 2 today is $81.87.
+Welcome to Temmie Pie Store 3!
+Temmie's Pies shop
+Inventory:
+- Apple Pie: Small, Medium, Large
+- Blueberry Pie: Small, Medium, Large
+- Pumpkin Pie: Small, Medium, Large
+- Cinnamon Butterscotch Pie: Small, Medium, Large
+- Cherry Pie: Small, Medium, Large
+- Key Lime Pie: Small, Medium, Large
+
+We have 10 customers today.
+Customer Frisk is shopping.
+Frisk is busy shopping at Temmie's Pies shop...
+Frisk adds Large Cherry Pie to their basket.
+Customer Sans is shopping.
+Sans is busy shopping at Temmie's Pies shop...
+Sans adds Large Blueberry Pie to their basket.
+Customer Toriel is shopping.
+Toriel is busy shopping at Temmie's Pies shop...
+Toriel adds Medium Apple Pie to their basket.
+Customer Undyne is shopping.
+Undyne is busy shopping at Temmie's Pies shop...
+Undyne adds Medium Cinnamon Butterscotch Pie to their basket.
+Customer Alphys is shopping.
+Alphys is busy shopping at Temmie's Pies shop...
+Alphys adds Small Cherry Pie to their basket.
+Customer Asriel is shopping.
+Asriel is busy shopping at Temmie's Pies shop...
+Asriel adds Large Blueberry Pie to their basket.
+Customer Chara is shopping.
+Chara is busy shopping at Temmie's Pies shop...
+Chara adds Small Cherry Pie to their basket.
+Customer Papyrus is shopping.
+Papyrus is busy shopping at Temmie's Pies shop...
+Papyrus adds Medium Key Lime Pie to their basket.
+Customer Asgore is shopping.
+Asgore is busy shopping at Temmie's Pies shop...
+Asgore adds Small Pumpkin Pie to their basket.
+Customer Monster kid is shopping.
+Monster kid is busy shopping at Temmie's Pies shop...
+Monster kid adds Medium Blueberry Pie to their basket.
+The total sales for Temmie Pie Store 3 today is $80.89.
+The total sales for Temmie Pie Organization today is $238.63.
