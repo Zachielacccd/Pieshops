@@ -1,0 +1,287 @@
+This one has a panda what keeps a file of the profits made in each store in the organization then the profits as a whole
+import random
+import pandas as pd
+
+class Purchase:
+    def __init__(self):
+        self.total = 0
+
+    def increment(self, price):
+        self.total += price
+
+    def __str__(self):
+        return "Sale: $" + str(self.total)
+
+class TemmiePies:
+    def __init__(self):
+        self.inventory = {
+            'Apple Pie': {'Small': 10, 'Medium': 15, 'Large': 20},
+            'Blueberry Pie': {'Small': 8, 'Medium': 12, 'Large': 18},
+            'Pumpkin Pie': {'Small': 12, 'Medium': 20, 'Large': 25},
+            'Cinnamon Butterscotch Pie': {'Small': 5, 'Medium': 8, 'Large': 10},
+            'Cherry Pie': {'Small': 6, 'Medium': 10, 'Large': 15},
+            'Key Lime Pie': {'Small': 7, 'Medium': 12, 'Large': 18}
+        }
+        self.total_revenue = 0
+
+    def message(self):
+        message = "Temmie's Pies shop\nInventory:\n"
+        for flavor, sizes in self.inventory.items():
+            message += f"- {flavor}: {', '.join(sizes.keys())}\n"
+        return message
+
+    def shop(self, customer_name, pie_to_buy, size, result, payment):
+        if pie_to_buy in self.inventory and size in self.inventory[pie_to_buy] and self.inventory[pie_to_buy][size] > 0:
+            result.append(f"{size} {pie_to_buy} added to {customer_name}'s bag.")
+            self.inventory[pie_to_buy][size] -= 1
+            payment.increment(self.get_pie_price(pie_to_buy, size))
+        else:
+            result.append(f"Sorry, {size} {pie_to_buy} is not available at the moment.")
+
+    def get_pie_price(self, pie, size):
+        prices = {
+            'Apple Pie': {'Small': 4.99, 'Medium': 7.99, 'Large': 10.99},
+            'Blueberry Pie': {'Small': 4.99, 'Medium': 7.99, 'Large': 10.99},
+            'Pumpkin Pie': {'Small': 4.98, 'Medium': 7.98, 'Large': 10.98},
+            'Cinnamon Butterscotch Pie': {'Small': 6.99, 'Medium': 9.99, 'Large': 12.99},
+            'Cherry Pie': {'Small': 3.99, 'Medium': 6.99, 'Large': 9.99},
+            'Key Lime Pie': {'Small': 6.99, 'Medium': 9.99, 'Large': 12.98}
+        }
+        return prices[pie][size]
+
+    def random_pie_choice(self):
+        available_pies = [(pie, size) for pie, sizes in self.inventory.items() for size, quantity in sizes.items() if quantity > 0]
+        if available_pies:
+            pie, size = random.choice(available_pies)
+            return pie, size
+        else:
+            return None, None
+
+class Stand:
+    def __init__(self, name):
+        self.name = name
+        self.inventory = TemmiePies()
+        self.customers = []
+        self.purchase = Purchase()
+
+    def add_customer(self, customer):
+        self.customers.append(customer)
+
+    def run(self):
+        print("Welcome to " + self.name + "!")
+        print(self.inventory.message())
+        print("We have " + str(len(self.customers)) + " customers today.")
+
+        for customer in self.customers:
+            print("Customer " + customer.name + " is shopping.")
+            item = self.inventory.random_pie_choice()
+            if item[0] is not None:
+                customer.add_to_order(item)
+                result = []
+                self.inventory.shop(customer.name, item[0], item[1], result, self.purchase)
+                for entry in result:
+                    print(entry)
+        print("The total sales for " + self.name + " today is $" + str(self.purchase.total) + ".")
+
+class Customer:
+    def __init__(self, name):
+        self.name = name
+        self.cart = {}
+        self.order = []
+
+    def add_to_order(self, product):
+        pie, size = product
+        if (pie, size) in self.cart:
+            self.cart[(pie, size)] += 1
+        else:
+            self.cart[(pie, size)] = 1
+        self.order.append(product)
+
+    def get_name(self):
+        return self.name
+
+class Analytics:
+    def __init__(self):
+        self.store_analytics = []
+
+    def add_analytics(self, analytics):
+        self.store_analytics.append(analytics)
+
+    def make_csv(self):
+        df = pd.DataFrame(self.store_analytics)
+        print(df)
+        entitle = "latest-store.csv"
+        df.to_csv(entitle)
+
+
+class Organization:
+    def __init__(self, name):
+        self.name = name
+        self.stands = []
+        self.analytics = []
+
+    def add_stand(self, stand):
+        self.stands.append(stand)
+
+    def simulate(self):
+        print("Welcome to " + self.name + "!")
+        print("We have " + str(len(self.stands)) + " stores in our corporation.")
+
+        for stand in self.stands:
+            stand.run()
+            self.analytics.append({"name": stand.name, "total_sales": stand.purchase.total})
+
+        total_sales = sum(stand.purchase.total for stand in self.stands)
+        print("The total sales for " + self.name + " today is $" + str(total_sales) + ".")
+
+    def get_analytics(self):
+        return self.analytics
+
+    def display_analytics(self):
+        for data in self.analytics:
+            print(data)
+
+    def __str__(self):
+        result = self.name + ":\n"
+        for stand in self.stands:
+            result += str(stand) + "\n"
+        return result
+
+
+corp = Organization("Temmie Pie Organization")
+
+
+store1 = Stand("Temmie Pie Store 1")
+store2 = Stand("Temmie Pie Store 2")
+store3 = Stand("Temmie Pie Store 3")
+corp.add_stand(store1)
+corp.add_stand(store2)
+corp.add_stand(store3)
+
+
+customer_names = ["Frisk", "Sans", "Toriel", "Undyne", "Alphys", "Asriel", "Chara", "Papyrus", "Asgore", "Monster kid"]
+for name in customer_names:
+    customer = Customer(name)
+    store1.add_customer(customer)
+    store2.add_customer(customer)
+    store3.add_customer(customer)
+
+corp.simulate()
+
+corp.display_analytics()
+
+analytic = Analytics()
+analytic.add_analytics(corp.get_analytics())
+analytic.make_csv()
+
+results is this then a file keeping track profits
+Welcome to Temmie Pie Organization!
+We have 3 stores in our corporation.
+Welcome to Temmie Pie Store 1!
+Temmie's Pies shop
+Inventory:
+- Apple Pie: Small, Medium, Large
+- Blueberry Pie: Small, Medium, Large
+- Pumpkin Pie: Small, Medium, Large
+- Cinnamon Butterscotch Pie: Small, Medium, Large
+- Cherry Pie: Small, Medium, Large
+- Key Lime Pie: Small, Medium, Large
+
+We have 10 customers today.
+Customer Frisk is shopping.
+Medium Pumpkin Pie added to Frisk's bag.
+Customer Sans is shopping.
+Medium Key Lime Pie added to Sans's bag.
+Customer Toriel is shopping.
+Medium Apple Pie added to Toriel's bag.
+Customer Undyne is shopping.
+Large Key Lime Pie added to Undyne's bag.
+Customer Alphys is shopping.
+Small Apple Pie added to Alphys's bag.
+Customer Asriel is shopping.
+Medium Cinnamon Butterscotch Pie added to Asriel's bag.
+Customer Chara is shopping.
+Large Apple Pie added to Chara's bag.
+Customer Papyrus is shopping.
+Medium Cinnamon Butterscotch Pie added to Papyrus's bag.
+Customer Asgore is shopping.
+Large Cinnamon Butterscotch Pie added to Asgore's bag.
+Customer Monster kid is shopping.
+Large Cinnamon Butterscotch Pie added to Monster kid's bag.
+The total sales for Temmie Pie Store 1 today is $100.87999999999998.
+Welcome to Temmie Pie Store 2!
+Temmie's Pies shop
+Inventory:
+- Apple Pie: Small, Medium, Large
+- Blueberry Pie: Small, Medium, Large
+- Pumpkin Pie: Small, Medium, Large
+- Cinnamon Butterscotch Pie: Small, Medium, Large
+- Cherry Pie: Small, Medium, Large
+- Key Lime Pie: Small, Medium, Large
+
+We have 10 customers today.
+Customer Frisk is shopping.
+Medium Cherry Pie added to Frisk's bag.
+Customer Sans is shopping.
+Small Cherry Pie added to Sans's bag.
+Customer Toriel is shopping.
+Medium Apple Pie added to Toriel's bag.
+Customer Undyne is shopping.
+Medium Cherry Pie added to Undyne's bag.
+Customer Alphys is shopping.
+Small Pumpkin Pie added to Alphys's bag.
+Customer Asriel is shopping.
+Medium Apple Pie added to Asriel's bag.
+Customer Chara is shopping.
+Medium Cherry Pie added to Chara's bag.
+Customer Papyrus is shopping.
+Medium Blueberry Pie added to Papyrus's bag.
+Customer Asgore is shopping.
+Medium Pumpkin Pie added to Asgore's bag.
+Customer Monster kid is shopping.
+Small Apple Pie added to Monster kid's bag.
+The total sales for Temmie Pie Store 2 today is $66.88.
+Welcome to Temmie Pie Store 3!
+Temmie's Pies shop
+Inventory:
+- Apple Pie: Small, Medium, Large
+- Blueberry Pie: Small, Medium, Large
+- Pumpkin Pie: Small, Medium, Large
+- Cinnamon Butterscotch Pie: Small, Medium, Large
+- Cherry Pie: Small, Medium, Large
+- Key Lime Pie: Small, Medium, Large
+
+We have 10 customers today.
+Customer Frisk is shopping.
+Medium Apple Pie added to Frisk's bag.
+Customer Sans is shopping.
+Medium Blueberry Pie added to Sans's bag.
+Customer Toriel is shopping.
+Small Blueberry Pie added to Toriel's bag.
+Customer Undyne is shopping.
+Medium Key Lime Pie added to Undyne's bag.
+Customer Alphys is shopping.
+Large Cherry Pie added to Alphys's bag.
+Customer Asriel is shopping.
+Medium Pumpkin Pie added to Asriel's bag.
+Customer Chara is shopping.
+Large Key Lime Pie added to Chara's bag.
+Customer Papyrus is shopping.
+Large Pumpkin Pie added to Papyrus's bag.
+Customer Asgore is shopping.
+Medium Apple Pie added to Asgore's bag.
+Customer Monster kid is shopping.
+Large Cinnamon Butterscotch Pie added to Monster kid's bag.
+The total sales for Temmie Pie Store 3 today is $93.87.
+The total sales for Temmie Pie Organization today is $261.63.
+{'name': 'Temmie Pie Store 1', 'total_sales': 100.87999999999998}
+{'name': 'Temmie Pie Store 2', 'total_sales': 66.88}
+{'name': 'Temmie Pie Store 3', 'total_sales': 93.87}
+                                                   0  \
+0  {'name': 'Temmie Pie Store 1', 'total_sales': ...   
+
+                                                   1  \
+0  {'name': 'Temmie Pie Store 2', 'total_sales': ...   
+
+                                                   2  
+0  {'name': 'Temmie Pie Store 3', 'total_sales': ...  
