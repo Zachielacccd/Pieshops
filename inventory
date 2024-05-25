@@ -1,0 +1,49 @@
+This code was to show what the pie shop had in its inventory It works by listing out the the possible sizes or falvors then quanity in a randomized list.
+class Pie:
+    def __init__(self, flavor, size, quantity=1):
+        self.flavor = flavor
+        self.size = size
+        self.quantity = quantity
+
+    def display_info(self, quantity=None):
+        print(f"Flavor: {self.flavor}")
+        print(f"Size: {self.size}")
+        print(f"Quantity: {quantity or self.quantity}")
+        print("----------")
+
+
+class PieInventory:
+    def __init__(self):
+        self.pies = {}
+
+    def add_pie(self, pie, quantity=1):
+        key = (pie.flavor, pie.size)
+        if key in self.pies:
+            self.pies[key].quantity += quantity
+        else:
+            pie.quantity = quantity
+            self.pies[key] = pie
+
+    def display_inventory(self):
+        print("Current Pie Inventory:")
+        for pie in self.pies.values():
+            pie.display_info()
+
+# Example Usage:
+if __name__ == "__main__":
+    flavors = ["Apple", "Cherry", "Blueberry", "Butterscotch", "Pumpkin", "Pecan", "Cinnamon"]   # All pie flavors
+    sizes = ["Small", "Medium", "Large"]    # The three sizes
+
+    # Pie inventory
+    pie_inventory = PieInventory()
+
+    import random
+    for _ in range(20):  # Number of pies
+        flavor = random.choice(flavors)
+        size = random.choice(sizes)
+        quantity = random.randint(1, 20)  # quantity range
+        pie = Pie(flavor, size, quantity)
+        pie_inventory.add_pie(pie)
+
+    # Displaying the current pie inventory
+    pie_inventory.display_inventory()
