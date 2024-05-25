@@ -1,0 +1,233 @@
+This one was suppose to keep track of all data and even track sales and profits from differnt places as well
+
+this part add the pandas and the software to have the csv file
+import os
+
+
+cwd = os.getcwd()
+
+
+files = os.listdir(cwd)
+
+
+csv_files = [f for f in files if f.endswith('.csv')]
+
+
+for f in csv_files:
+    os.remove(os.path.join(cwd, f))
+
+
+this part keeps track of the places and sales for a certain time period
+
+import pandas as pd
+import random
+from datetime import datetime, timedelta
+
+
+undertale_locations = ['ruins', 'snowdin', 'waterfall', 'hotland', 'asgore castle', 'lab']
+
+
+start_date = datetime(2024, 1, 1)
+end_date = datetime(2024, 12, 31)
+current_date = start_date
+
+while current_date <= end_date:
+
+    weekly_totals_per_store = []
+    week_name = current_date.strftime('%B-%d-%Y')
+
+
+    for location in undertale_locations:
+        store_name = location
+        weekly_sales_total = random.randint(20000, 90000)
+        store_dict = {'store_name': store_name, 'weekly_sales_total': weekly_sales_total}
+        weekly_totals_per_store.append(store_dict)
+
+
+    df = pd.DataFrame(weekly_totals_per_store)
+
+
+    file_name = week_name.replace(' ', '-').lower() + '.csv'
+    df.to_csv(file_name, index=False)
+
+
+    current_date += timedelta(days=7)
+
+    print(f"Data saved to {file_name}")
+
+where it saved these csv files with data points
+
+Data saved to january-01-2024.csv
+Data saved to january-08-2024.csv
+Data saved to january-15-2024.csv
+Data saved to january-22-2024.csv
+Data saved to january-29-2024.csv
+Data saved to february-05-2024.csv
+Data saved to february-12-2024.csv
+Data saved to february-19-2024.csv
+Data saved to february-26-2024.csv
+Data saved to march-04-2024.csv
+Data saved to march-11-2024.csv
+Data saved to march-18-2024.csv
+Data saved to march-25-2024.csv
+Data saved to april-01-2024.csv
+Data saved to april-08-2024.csv
+Data saved to april-15-2024.csv
+Data saved to april-22-2024.csv
+Data saved to april-29-2024.csv
+Data saved to may-06-2024.csv
+Data saved to may-13-2024.csv
+Data saved to may-20-2024.csv
+Data saved to may-27-2024.csv
+Data saved to june-03-2024.csv
+Data saved to june-10-2024.csv
+Data saved to june-17-2024.csv
+Data saved to june-24-2024.csv
+Data saved to july-01-2024.csv
+Data saved to july-08-2024.csv
+Data saved to july-15-2024.csv
+Data saved to july-22-2024.csv
+Data saved to july-29-2024.csv
+Data saved to august-05-2024.csv
+Data saved to august-12-2024.csv
+Data saved to august-19-2024.csv
+Data saved to august-26-2024.csv
+Data saved to september-02-2024.csv
+Data saved to september-09-2024.csv
+Data saved to september-16-2024.csv
+Data saved to september-23-2024.csv
+Data saved to september-30-2024.csv
+Data saved to october-07-2024.csv
+Data saved to october-14-2024.csv
+Data saved to october-21-2024.csv
+Data saved to october-28-2024.csv
+Data saved to november-04-2024.csv
+Data saved to november-11-2024.csv
+Data saved to november-18-2024.csv
+Data saved to november-25-2024.csv
+Data saved to december-02-2024.csv
+Data saved to december-09-2024.csv
+Data saved to december-16-2024.csv
+Data saved to december-23-2024.csv
+Data saved to december-30-2024.csv
+
+
+
+this part was suppose to get a directory of all the data but i couldnt get it to work
+
+import pandas as pd
+import os
+
+
+current_directory = os.getcwd()
+
+# locations
+undertale_locations = ['ruins', 'snowdin', 'waterfall', 'hotland', 'asgore castle', 'lab']
+
+
+all_locations_all_weekly_sales = []
+
+
+for filename in os.listdir(current_directory):
+    if filename.endswith('.csv'):
+        for location in undertale_locations:
+            if location in filename:
+                df = pd.read_csv(filename)
+                week_name = filename.replace('.csv', '')
+                for _, row in df.iterrows():
+                    row_dict = row.to_dict()
+                    row_dict['week'] = week_name
+                    all_locations_all_weekly_sales.append(row_dict)
+
+
+df = pd.DataFrame(all_locations_all_weekly_sales)
+
+
+print(df)
+
+
+
+since i could get the previous part to work the grasph dosent show 
+
+
+import pandas as pd
+import altair as alt
+
+
+
+
+width = 800
+height = 300
+
+
+base = alt.Chart(df, width=width, height=height).mark_line().encode(
+    x='week:T',
+    y='weekly_sales_total:Q',
+    color='store_name:N',
+    tooltip=['store_name:N', 'weekly_sales_total:Q', 'week:T']
+).interactive()
+
+
+base
+the graph here shows nothing
+
+import pandas as pd
+
+
+
+
+grouped_stats = df.groupby('store_name')['weekly_sales_total'].describe()
+
+
+grouped_variance = df.groupby('store_name')['weekly_sales_total'].var().rename("variance")
+
+
+stats_with_variance = pd.concat([grouped_stats, grouped_variance], axis=1)
+
+
+print(stats_with_variance)
+import pandas as pd
+
+
+
+
+grouped_variance = df.groupby('store_name')['weekly_sales_total'].var().rename("variance")
+
+
+ranked_stores = grouped_variance.sort_values(ascending=False)
+
+
+print(ranked_stores)
+since the dtata dosent show on the graph it does not rank it by sales either becuase the data did not transfer
+
+The histogram also didnt show becuase of the data 
+import pandas as pd
+import altair as alt
+
+
+
+
+grouped_variance = df.groupby('store_name')['weekly_sales_total'].var().rename("variance")
+
+
+ranked_stores = grouped_variance.sort_values(ascending=False)
+
+
+data = ranked_stores.reset_index()
+data.columns = ['store_name', 'variance']
+
+
+color_scale = alt.Scale(scheme='redblue', domainMid=0)
+
+
+histogram = alt.Chart(data).mark_bar().encode(
+    x='store_name:N',
+    y='variance:Q',
+    color=alt.Color('variance:Q', scale=color_scale, legend=None),
+    tooltip=['store_name:N', 'variance:Q']
+).properties(
+    width=800
+)
+
+
+histogram
